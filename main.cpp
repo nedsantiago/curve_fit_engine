@@ -24,6 +24,12 @@ using namespace Eigen;
 double pd_a0(double x, double a0, double a1);
 double pd_a1(double x, double a0, double a1);
 
+double weibull(double x, double a, double b, double c, double d);
+double pdw_a(double x, double a, double b, double c, double d);
+double pdw_b(double x, double a, double b, double c, double d);
+double pdw_c(double x, double a, double b, double c, double d);
+double pdw_d(double x, double a, double b, double c, double d);
+
 int main()
 {
     /* Main Function*/
@@ -34,6 +40,7 @@ int main()
     const int x_len = sizeof(x) / sizeof(x[0]);
     // record the y-data
     double y[8] = {124.38122, 171.92605, 203.40486, 221.16494, 233.60009, 243.17842, 272.68472, 301.93715};
+
     int y_len = sizeof(y) / sizeof(y[0]);
 
     // Initial guesses for the values of the parameters
@@ -67,7 +74,26 @@ int main()
     	    {
 		switch (j)
 		{
-
+		    case 0:
+			// derive wrt a
+			printf("running case 0\n");
+			Z_f(i,j) = pdw_a(x[i], a[0], a[1], a[2], a[3]);
+			break;
+		    case 1:
+			// derive wrt b
+			printf("running case 1\n");
+			Z_f(i,j) = pdw_b(x[i], a[0], a[1], a[2], a[3]);
+			break;
+		    case 2:
+			// derive wrt c
+			printf("running case 2\n");
+			Z_f(i,j) = pdw_c(x[i], a[0], a[1], a[2], a[3]);
+			break;
+		    case 3:
+			// derive wrt d
+			printf("running case 3\n");
+			Z_f(i,j) = pdw_d(x[i], a[0], a[1], a[2], a[3]);
+			break;
 		}
     	    }
     	}
@@ -158,3 +184,48 @@ int main()
 
 }
 
+// original weibull formula
+double weibull(double x, double a, double b, double c, double d)
+{
+    return a - b * exp(-c * pow(x, d));
+}
+
+// partial derivative wrt a
+double pdw_a(double x, double a, double b, double c, double d)
+{
+    return 1;
+}
+
+// partial derivative wrt b
+double pdw_b(double x, double a, double b, double c, double d)
+{
+    printf("running pdw_b: x=%f, a=%f, b=%f, c=%f, d=%f\n", x, a, b, c, d);
+    return -exp(-c * pow(x, d));
+}
+
+// partial derivative wrt c
+double pdw_c(double x, double a, double b, double c, double d)
+{
+    printf("running pdw_c: x=%f, a=%f, b=%f, c=%f, d=%f\n", x, a, b, c, d);
+    return -b * exp(-c * pow(x, d)) * -pow(x, d);
+}
+
+// partial derivative wrt d
+double pdw_d(double x, double a, double b, double c, double d)
+{
+    printf("running pdw_d: x=%f, a=%f, b=%f, c=%f, d=%f\n", x, a, b, c, d);
+    return -b * exp(-c * pow(x, d)) * -c * d * pow(x, d - 1);
+}
+
+
+// partial derivative with respective to a0
+double pd_a0(double x, double a0, double a1)
+{
+    return 1 - exp(-a1 * x);
+}
+
+// partial derivative with respective to a1
+double pd_a1(double x, double a0, double a1)
+{
+    return a0 * x * exp(-a1 * x);
+}
